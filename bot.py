@@ -26,16 +26,28 @@ watched_positions = ['DCA_', 'IAD_', 'BWI_', 'PCT_', 'ADW_', 'RIC_', 'ROA_', 'OR
 
 rating_map = {1: "OBS", 2: "S1", 3: "S2", 4: "S3", 5: "C1", 7: "C3", 8: "I1", 10: "I3", 11: "SUP", 12: "ADM"}
 
+
+
 @bot.event
 async def on_ready():
+    staffup_channel = bot.get_channel(1198323590165176480)
+    #CHANGE_THIS_CHANNEL_ID
+
     print(f"Online: {bot.user}")
+
+    embed = Embed()
+    embed.title = "ZDC Online Controllers"
+    embed.colour = discord.Colour.red()
+
+    global controller_list
+    controller_list = await staffup_channel.send(embed=embed)
+
     await check_online_controllers.start()
 
 
-@tasks.loop(seconds=15.0)
+@tasks.loop(seconds=10.0)
 async def check_online_controllers():
     try:
-        staffup_channel = bot.get_channel(1198323590165176480)
 
         raw_data = requests.get("https://data.vatsim.net/v3/vatsim-data.json")
 
@@ -49,34 +61,34 @@ async def check_online_controllers():
                     zdc_controllers.append(dict(list(controller.items())[:7]))
 
             for controller in online_zdc_controllers.copy():
-                if controller not in zdc_controllers and controller['frequency'] != "199.998":
-                    embed = Embed()
-                    embed.title = f"{controller['callsign']} - {controller['frequency']} - Offline"
-                    embed.add_field(name="Name:", value=controller['name'])
-                    embed.add_field(name="CID:", value=str(controller['cid']))
-                    embed.add_field(name="Rating:", value=rating_map[controller['rating']])
-                    embed.set_footer(text="vZDC Controller Status")
-                    embed.colour = discord.Color.red()
-                    await staffup_channel.send(embed=embed)
+                if controller not in zdc_controllers:
                     online_zdc_controllers.remove(controller)
 
             for controller in zdc_controllers:
-                if controller not in online_zdc_controllers.copy() and controller['frequency'] != "199.998":
-                    embed = Embed()
-                    embed.title = f"{controller['callsign']} - {controller['frequency']} - Online"
-                    embed.add_field(name="Name:", value=controller['name'])
-                    embed.add_field(name="CID:", value=str(controller['cid']))
-                    embed.add_field(name="Rating:", value=rating_map[controller['rating']])
-                    embed.set_footer(text="vZDC Controller Status")
-                    embed.colour = discord.Color.green()
-                    await staffup_channel.send(embed=embed)
+                if controller not in online_zdc_controllers.copy():
                     online_zdc_controllers.append(controller)
+
+            embed = Embed()
+            embed.title = "ZDC Online Controllers"
+            embed.colour = discord.Colour.red() if len(online_zdc_controllers) == 0 else discord.Colour.green()
+
+            embed.add_field(name="Position:", value="", inline=True)
+            embed.add_field(name="Frequency:", value="", inline=True)
+            embed.add_field(name="Name:", value="", inline=True)
+
+            for controller in online_zdc_controllers:
+                embed.add_field(name="", value=controller['callsign'], inline=True)
+                embed.add_field(name="", value=controller['frequency'], inline=True)
+                embed.add_field(name="", value=f"{controller['name']} ({(rating_map[controller['rating']])})", inline=True)
+                embed.add_field(name="", value="", inline=False)
+
+            embed.set_footer(text="vZDC Controller Status")
+
+            await controller_list.edit(embed=embed)
         else:
             print("Could not fetch VATSIM Data.")
     except:
-        print("An Error Occurred.")
-
-
+        print("An Error Occurred. Aneesh is bad.")
 
 
 @check_online_controllers.before_loop
