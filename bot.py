@@ -52,9 +52,7 @@ async def check_online_controllers():
                 if controller not in zdc_controllers and controller['frequency'] != "199.998":
                     embed = Embed()
                     embed.title = f"{controller['callsign']} - {controller['frequency']} - Offline"
-                    embed.add_field(name="Name:", value=controller['name'])
-                    embed.add_field(name="CID:", value=str(controller['cid']))
-                    embed.add_field(name="Rating:", value=rating_map[controller['rating']])
+                    embed.add_field(name="Name:", value=f"{controller['name']} ({rating_map[controller['rating']]})")
                     embed.set_footer(text="vZDC Controller Status")
                     embed.colour = discord.Color.red()
                     await staffup_channel.send(embed=embed)
@@ -64,9 +62,7 @@ async def check_online_controllers():
                 if controller not in online_zdc_controllers.copy() and controller['frequency'] != "199.998":
                     embed = Embed()
                     embed.title = f"{controller['callsign']} - {controller['frequency']} - Online"
-                    embed.add_field(name="Name:", value=controller['name'])
-                    embed.add_field(name="CID:", value=str(controller['cid']))
-                    embed.add_field(name="Rating:", value=rating_map[controller['rating']])
+                    embed.add_field(name="Name:", value=f"{controller['name']} ({rating_map[controller['rating']]})")
                     embed.set_footer(text="vZDC Controller Status")
                     embed.colour = discord.Color.green()
                     await staffup_channel.send(embed=embed)
@@ -75,8 +71,6 @@ async def check_online_controllers():
             print("Could not fetch VATSIM Data.")
     except:
         print("An Error Occurred.")
-
-
 
 
 @check_online_controllers.before_loop
