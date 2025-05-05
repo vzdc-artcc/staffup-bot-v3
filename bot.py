@@ -35,7 +35,7 @@ async def on_ready():
 @tasks.loop(seconds=15.0)
 async def check_online_controllers():
     try:
-        staffup_channel = bot.get_channel(1198323590165176480)
+        staffup_channel = bot.get_channel(1023762177569603694)
 
         raw_data = requests.get("https://data.vatsim.net/v3/vatsim-data.json")
 
@@ -71,6 +71,7 @@ async def check_online_controllers():
             print("Could not fetch VATSIM Data.")
     except:
         print("An Error Occurred.")
+
 
 
 @check_online_controllers.before_loop

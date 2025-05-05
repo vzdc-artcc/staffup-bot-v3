@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  discord-bot:
+    image: vainnor/staffup-bot:1.0.0
+    restart: unless-stopped
+    env_file:
+      - stack.env
